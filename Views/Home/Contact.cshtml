@@ -1,0 +1,66 @@
+﻿<link href="~/Content/toastr.css" rel="stylesheet" />
+
+<form class="form-horizontal">
+    <fieldset>
+
+        <!-- Form Name -->
+        <legend>Contact</legend>
+
+        <!-- Text input-->
+        <div class="control-group">
+            <label class="control-label" for="txtName">Name</label>
+            <div class="controls">
+                <input id="txtName" name="txtName" type="text" class="input-medium">
+
+            </div>
+        </div>
+
+        <!-- Textarea -->
+        <div class="control-group">
+            <label class="control-label" for="txtComments">Comments</label>
+            <div class="controls">
+                <textarea id="txtComments" name="txtComments"></textarea>
+            </div>
+        </div>
+
+        <!-- Button -->
+        <div class="control-group">
+            <label class="control-label" for="btnSubmit"></label>
+            <div class="controls">
+                <button id="btnSubmit" name="btnSubmit" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+
+    </fieldset>
+</form>
+
+
+@section scripts
+{
+    <script src="~/Scripts/toastr.js"></script>
+    <script src="~/Scripts/jquery.signalR-2.0.3.js"></script>
+    <script src="~/signalr/hubs"></script>    
+
+    <script type="text/javascript">
+        $(function() {
+            var contact = $.connection.contactHub;
+
+            // Callbacks to the client should be defined here.
+            contact.client.notifyUsers = function (name) {
+                toastr.info('New contact form submitted by ' + name);
+            };
+
+            $.connection.hub.start().done(function() {
+                // Calls to server should be included within the hub.start() method.
+                $('#btnSubmit').click(function() {
+                    // Call the ContactFormSubmitted method on the hub.
+                    contact.server.contactFormSubmitted($('#txtName').val(), $('#txtComments').val());
+                    // Clear text boxes and reset focus for next comment.
+                    $('#txtName').val('');
+                    $('#txtComments').val('');
+                    return false;  // prevent 'form' from submitting.
+                });
+            });
+        });
+    </script>
+}
